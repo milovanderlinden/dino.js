@@ -18,7 +18,7 @@ api listening at http://0.0.0.0:8080
 api listening at http://0.0.0.0:8080
 </pre>
 
-De applicatie is gebruikt de node.js cluster module. Hierdoor worden op basis van het aantal processoren in je computer op elke core een proces gestart
+De applicatie gebruikt de node.js cluster module. Hierdoor worden op basis van het aantal processoren in je computer op elke core een proces gestart
 
 ## Gereed ##
 
