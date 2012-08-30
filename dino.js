@@ -199,48 +199,49 @@ exports.getverticalsectionpicture = function(req, res, next) {
             if (remote_res.headers['content-type'].indexOf('json') > -1){
                 myResult = JSON.parse(mybuf);
                 var result = {};
-                result.verticalsectionmodel = {};
+                result.sectionmodel = {};
                 myResult = JSON.parse(mybuf);
                 var filename = require('crypto').createHash('md5').update(querystring.stringify(params)).digest("hex");
 
                 getTempImg(myResult.drawVerticalSectionResponse.sectionPicture.sectionPicture["$"], 'cache/' + filename + '_s.jpg');
                 getTempImg(myResult.drawVerticalSectionResponse.sectionPicture.legendPicture["$"], 'cache/' + filename + '_l.jpg');
-                result.verticalsectionmodel.sectionpicture = 'cache/' + filename + '_s.jpg';
-                result.verticalsectionmodel.legendpicture = 'cache/' + filename + '_l.jpg';
-                result.type = myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.sectionType["$"];
+                console.log(req);
+                result.sectionmodel.sectionpicture = 'cache/' + filename + '_s.jpg';
+                result.sectionmodel.legendpicture = 'cache/' + filename + '_l.jpg';
+                result.sectionmodel.type = myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.sectionType["$"];
                 
                 //Model Meta informatie
-                result.model = {};
-                result.model.name = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.model["$"];
-                result.model.version = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.version["$"];
-                result.model.resolution = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.resolution["$"];
-                result.model.description = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.description["$"];
-                result.model.onlinereference = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.onlineReference["$"];
-                result.model.coordinatesystem = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.coordinateSystem["$"];
-                result.model.depthunit = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.depthUnit["$"];
-                result.model.depthreference = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.depthreference["$"];
+                result.sectionmodel.model = {};
+                result.sectionmodel.model.name = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.model["$"];
+                result.sectionmodel.model.version = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.version["$"];
+                result.sectionmodel.model.resolution = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.resolution["$"];
+                result.sectionmodel.model.description = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.description["$"];
+                result.sectionmodel.model.onlinereference = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.onlineReference["$"];
+                result.sectionmodel.model.coordinatesystem = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.coordinateSystem["$"];
+                result.sectionmodel.model.depthunit = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.depthUnit["$"];
+                result.sectionmodel.model.depthreference = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.depthreference["$"];
                 
-                result.picture = {};
+                result.sectionmodel.picture = {};
                 //Picture Meta informatie
-                result.picture.reference = {};
-                result.picture.reference.origin = {
+                result.sectionmodel.picture.reference = {};
+                result.sectionmodel.picture.reference.origin = {
                     px: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originXImagePixel["$"], 
                     py: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originYImagePixel["$"],
                     x: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originXRealWorldCoordinate["$"],
                     y: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originYRealWorldCoordinate["$"]
                   };
-                result.picture.reference.width = {
+                result.sectionmodel.picture.reference.width = {
                   px: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.widthImagePixel["$"],
                   m: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.widthRealWorldCoordinate["$"]
                 };
-                result.picture.reference.height = {
+                result.sectionmodel.picture.reference.height = {
                   px: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.heightImagePixel["$"],
                   m: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.heightRealWorldCoordinate["$"]
                 };
                 
                 //Areas
                 
-                result.picture.areas = [];
+                result.sectionmodel.picture.areas = [];
                 for (var i = 0; i < myResult.drawVerticalSectionResponse.sectionPicture.pictureAreas.pictureArea.length ; i++) {
                     var area = {};
                     area.name = myResult.drawVerticalSectionResponse.sectionPicture.pictureAreas.pictureArea[i].areaname["$"];
@@ -263,7 +264,7 @@ exports.getverticalsectionpicture = function(req, res, next) {
                             "name": myResult.drawVerticalSectionResponse.sectionPicture.pictureAreas.pictureArea[i].area["ns2:exterior"]["ns2:LinearRing"]["@srsName"]
                         }
                     }
-                        result.picture.areas.push(area);
+                        result.sectionmodel.picture.areas.push(area);
                     }
                     
                  res.send(result);
