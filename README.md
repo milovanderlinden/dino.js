@@ -2,6 +2,34 @@
 
 node js wrapper voor de TNO dinoservices (http://www.dinoservices.nl/geo3dmodelwebservices-1/) (versie 1.4.3)
 
+## Gebruiken ##
+
+<pre>
+node api.js
+</pre>
+
+Als het goed is verschijnt de volgende output, de foutmeldingen worden gegenereerd door restify en hebben geen invloed op
+de werking van de wrapper
+
+<pre>
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+api listening at http://0.0.0.0:8080
+{ [Error: Cannot find module './DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }
+api listening at http://0.0.0.0:8080
+api listening at http://0.0.0.0:8080
+api listening at http://0.0.0.0:8080
+api listening at http://0.0.0.0:8080
+api listening at http://0.0.0.0:8080
+api listening at http://0.0.0.0:8080
+api listening at http://0.0.0.0:8080
+</pre>
+
 ## Gereed ##
 
 +  GET localhost:8080/models/list
