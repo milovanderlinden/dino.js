@@ -194,6 +194,7 @@ exports.getverticalsectionpicture = function(req, res, next) {
         remote_res.on('data',function(chunk){
             mybuf += chunk;
         });
+        
         remote_res.on('end',function(){
             if (remote_res.headers['content-type'].indexOf('json') > -1){
                 myResult = JSON.parse(mybuf);
@@ -201,20 +202,71 @@ exports.getverticalsectionpicture = function(req, res, next) {
                 result.verticalsectionmodel = {};
                 myResult = JSON.parse(mybuf);
                 var filename = require('crypto').createHash('md5').update(querystring.stringify(params)).digest("hex");
-                console.log(getTempImg(myResult.drawVerticalSectionResponse.sectionPicture.sectionPicture["$"],filename +'_s'));
-                console.log(getTempImg(myResult.drawVerticalSectionResponse.sectionPicture.legendPicture["$"],filename + '_l'));
 
-                //var model = {};
-                //    model.name = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.model["$"];
-                //    model.version = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.version["$"];
-                //    model.resolution = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.resolution["$"];
-                //    model.description = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.description["$"];
-                //    model.onlinereference = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.onlineReference["$"];
-                //    model.coordinatesystem = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.coordinateSystem["$"];
-                //    model.depthunit = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.depthUnit["$"];
-                //    model.depthreference = myResult.listModelsResponse.geo3DModels.geo3DModel[i].modelMetadata.depthreference["$"];
-                //    result.models.push(model);
-                res.send(result);
+                getTempImg(myResult.drawVerticalSectionResponse.sectionPicture.sectionPicture["$"], 'cache/' + filename + '_s.jpg');
+                getTempImg(myResult.drawVerticalSectionResponse.sectionPicture.legendPicture["$"], 'cache/' + filename + '_l.jpg');
+                result.verticalsectionmodel.sectionpicture = 'cache/' + filename + '_s.jpg';
+                result.verticalsectionmodel.legendpicture = 'cache/' + filename + '_l.jpg';
+                result.type = myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.sectionType["$"];
+                
+                //Model Meta informatie
+                result.model = {};
+                result.model.name = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.model["$"];
+                result.model.version = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.version["$"];
+                result.model.resolution = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.resolution["$"];
+                result.model.description = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.description["$"];
+                result.model.onlinereference = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.onlineReference["$"];
+                result.model.coordinatesystem = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.coordinateSystem["$"];
+                result.model.depthunit = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.depthUnit["$"];
+                result.model.depthreference = myResult.drawVerticalSectionResponse.sectionPicture.modelMetadata.depthreference["$"];
+                
+                result.picture = {};
+                //Picture Meta informatie
+                result.picture.reference = {};
+                result.picture.reference.origin = {
+                    px: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originXImagePixel["$"], 
+                    py: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originYImagePixel["$"],
+                    x: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originXRealWorldCoordinate["$"],
+                    y: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.originYRealWorldCoordinate["$"]
+                  };
+                result.picture.reference.width = {
+                  px: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.widthImagePixel["$"],
+                  m: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.widthRealWorldCoordinate["$"]
+                };
+                result.picture.reference.height = {
+                  px: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.heightImagePixel["$"],
+                  m: myResult.drawVerticalSectionResponse.sectionPicture.pictureMetadata.worldReference.heightRealWorldCoordinate["$"]
+                };
+                
+                //Areas
+                
+                result.picture.areas = [];
+                for (var i = 0; i < myResult.drawVerticalSectionResponse.sectionPicture.pictureAreas.pictureArea.length ; i++) {
+                    var area = {};
+                    area.name = myResult.drawVerticalSectionResponse.sectionPicture.pictureAreas.pictureArea[i].areaname["$"];
+                    var poslist = myResult.drawVerticalSectionResponse.sectionPicture.pictureAreas.pictureArea[i].area["ns2:exterior"]["ns2:LinearRing"]["ns2:posList"]["$"].split(" ");
+        
+                    //console.log(poslist);
+                    var coordinatelist = [];
+                    for (var h = 0; h < poslist.length ; h++) {
+                        var pnt = [parseFloat(poslist[h]), parseFloat(poslist[h+1])];
+                        coordinatelist.push(pnt);
+                        h = h + 1;
+                    }
+                    area.geometry = {
+                        type: "Polygon", 
+                        coordinates: coordinatelist
+                    };
+                    area.geometry.crs = {
+                        "type": "name", 
+                        "properties": {
+                            "name": myResult.drawVerticalSectionResponse.sectionPicture.pictureAreas.pictureArea[i].area["ns2:exterior"]["ns2:LinearRing"]["@srsName"]
+                        }
+                    }
+                        result.picture.areas.push(area);
+                    }
+                    
+                 res.send(result);
             } else {
                 res.send(new restify.InvalidContentError(mybuf.toString()));
             }
@@ -223,14 +275,7 @@ exports.getverticalsectionpicture = function(req, res, next) {
     });
 }
 
-function getTempImg(base64Image, filename, callback) {
+function getTempImg(base64Image, filename) {
     var decodedImage = new Buffer(base64Image, 'base64');
-    var nfilename = 'cache/' + filename + '.jpg';
-    fs.writeFile(nfilename, decodedImage, function(err, data) {
-        console.log(data);
-        if (err) {
-            return callback(err);
-        }
-        callback(null, filename);
-    })
+    fs.writeFile(filename, decodedImage, function(err) { })
 }
